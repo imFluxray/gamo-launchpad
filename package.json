@@ -18,7 +18,7 @@
     "@distube/ytdl-core": "^4.16.12",
     "@nebula-services/bare-server-node": "^2.0.4",
     "aos": "^2.3.4",
-    "chalk": "^5.4.1",
+    "chalk": "^5.6.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",

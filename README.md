@@ -1,70 +1,109 @@
+# Gamo Launchpad
+
 <div align="center">
-    <img src="https://via.placeholder.com/150?text=Gamo+Launchpad" alt="Gamo Launchpad Logo">
-    <p>The Ultimate Web Proxy & Launchpad.<p>
-    <p>Gamo Launchpad is a modern web proxy with a sleek UI and privacy features.</p>
+  <h3>The Ultimate Web Proxy & Launchpad</h3>
+  <p>A modern web proxy with a sleek UI and privacy features.</p>
 </div>
 
+---
 
-> [!IMPORTANT]
-> If you fork this project, consider giving it a star in the original repository!
-
-
+> **Important:** If you fork this project, consider giving it a star in the original repository!
 
 ## Features
+- **Tab Cloaking** - Disguise your browsing activity
+- **Wide Collection** - Extensive apps & games library
+- **Clean UI** - Easy to use interface
+- **Inspect Element** - Built-in developer tools
+- **Various Themes** - Customize your experience
+- **Password Protection** - Optional security layer
+- **Built-in Tab System** - Seamless multitasking
+- **Now.gg Support** - Cloud gaming integration
+- **Fast Speeds** - Optimized performance
+- **Geforce NOW Support** - Enhanced gaming capabilities
 
-- About:Blank Cloaking
-- Tab Cloaking
-- Wide collection of apps & games
-- Clean, Easy to use UI
-- Inspect Element
-- Various Themes
-- Password Protection (Optional)
-- Built-in Tab System
-- Now.gg Support
-- Fast Speeds
-- Geforce NOW Support
+---
 
 ## Deployment
 
-> [!IMPORTANT]
-> You **cannot** deploy to static web hosts, including Netlify, Cloudflare Pages, and GitHub Pages.
-
-# Indepth tutorial soon.
+> **Important:** You cannot deploy to static web hosts, including Netlify, Cloudflare Pages, and GitHub Pages.
 
 ### GitHub Codespaces
 
-> [!NOTE]
-> If you're setting the port below 1023, then you must run `sudo PORT=1023`
+> **Note:** If you're setting the port below 1023, you must run `sudo PORT=1023`
 
-1. Create a GitHub account if you haven't already.
-2. Click "Code" (green button) and then "Create Codespace on main."
-3. In the terminal at the bottom, paste `pnpm i && pnpm start`.
-4. Respond to the application popup by clicking "Make public."
-> [!IMPORTANT]
-> Make sure you click the "Make public." button, or the proxy won't function properly.<br>
-> If you get a Range Error, go back and make sure you clicked Make public!
-5. Access the deployed website from the ports tab.
-6. For subsequent uses in the same codespace, just run `pnpm start`
+#### Setup Instructions
 
-### Solution for if there is no popup.
+1. **Create a GitHub account** if you haven't already
 
-1. Run `pnpm i`, and before `pnpm start`, prepend `PORT=8080`, replacing 8080 with another port. For example, `PORT=6969 pnpm start`.
-2. If this does not work then you can prepend `$env:PORT=8080;`, replacing 8080 with another port. For example, `$env:PORT=6969; pnpm start`
-3. Go to the ports tab, Click Forward A Port, And type the port number.
-4. Right-click Visibility and set Port Visibility to Public.
+2. **Launch Codespace**
+   - Click "Code" (green button)
+   - Select "Create Codespace on main"
 
-> [!NOTE]
-> We are committed to making Interstellar easy and personalized however, as of now we need your support in making it ad-free. Consider keeping ads so Interstellar can run freely or contribute by being a supporter.
+3. **Install & Start**
+   - In the terminal at the bottom, paste:
+   ```bash
+   pnpm i && pnpm start
+   ```
+
+4. **Make Public**
+   - Respond to the application popup by clicking "Make public"
+   
+   > **Important:** Make sure you click the "Make public" button, or the proxy won't function properly. If you get a Range Error, go back and make sure you clicked Make public!
+
+5. **Access Your Deployment**
+   - Access the deployed website from the ports tab
+   - For subsequent uses in the same codespace, just run `pnpm start`
+
+#### Troubleshooting
+
+<div style="background: #f6f8fa; padding: 15px; border-radius: 6px; margin: 15px 0;">
+
+**If there is no popup:**
+
+1. Run `pnpm i`, and before `pnpm start`, prepend `PORT=8080`, replacing 8080 with another port
+   ```bash
+   PORT=6969 pnpm start
+   ```
+
+2. If this does not work, prepend `$env:PORT=8080;`:
+   ```bash
+   $env:PORT=6969; pnpm start
+   ```
+
+3. Navigate to the ports tab
+4. Click "Forward A Port" and type the port number
+5. Right-click "Visibility" and set Port Visibility to Public
+
+</div>
+
+---
+
+## Contributing
+
+We welcome contributions! Please check out our [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to get involved.
+
+---
 
 ## Report Issues
 
 If you encounter problems, open an issue on GitHub, and we'll address it promptly.
 
-> [!TIP]
-> If you're having trouble, don't hesitate to reach out to us on [Discord](https://discord.gg/interstellar) for personalized support.
+> **Tip:** If you're having trouble, don't hesitate to reach out to us on Discord for personalized support.
 
-# Credits
+---
 
-A huge thanks goes out to all of the people who have contributed to Interstellar.
+## Credits
 
-[![Contributors](https://contrib.rocks/image?repo=UseInterstellar/Interstellar)](https://github.com/UseInterstellar/Interstellar/graphs/contributors)
+A huge thanks goes out to all of the people who have contributed to this project.
+
+---
+
+## License
+
+This project is licensed under the MIT license. See [LICENSE](LICENSE) for details.
+
+---
+
+<div align="center">
+  <sub>Built with ❤️ by the Gamo Launchpad team</sub>
+</div>

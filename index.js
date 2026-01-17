@@ -95,7 +95,7 @@ app.use(express.urlencoded({ extended: true }));
   setupMasqr(app);
 } */
 
-app.use(express.static(path.join(__dirname, "static"), { index: false }));
+app.use(express.static(path.join(__dirname, "public"), { index: false }));
 app.use("/ca", cors({ origin: true }));
 
 // ===============================
@@ -145,17 +145,17 @@ const routes = [
 // biome-ignore lint: idk
 routes.forEach(route => {
   app.get(route.path, (_req, res) => {
-    res.sendFile(path.join(__dirname, "static", route.file));
+    res.sendFile(path.join(__dirname, "public", route.file));
   });
 });
 
 app.use((req, res, next) => {
-  res.status(404).sendFile(path.join(__dirname, "static", "404.html"));
+  res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
 });
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).sendFile(path.join(__dirname, "static", "404.html"));
+  res.status(500).sendFile(path.join(__dirname, "public", "404.html"));
 });
 
 server.on("request", (req, res) => {

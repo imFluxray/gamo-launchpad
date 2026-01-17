@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <link rel="shortcut icon" id="tab-favicon" href="favicon.png">
+  <title id="t">Gamo Launchpad</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/assets/css/music-player.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --accent: #8B5CF6;
+      --bg: #0a0a0a;
+      --card: #111111;
+      --card-hover: #1a1a1a;
+      --border: rgba(255,255,255,0.08);
+      --text: #fff;
+      --muted: rgba(255,255,255,0.5);
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden; /* Only on body, not html - allows sticky to work */
+    }
+    
+    /* ===== FLOATING HEADER (Universal Pill) ===== */
+    .header {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 900px;
+      height: 60px;
+      background: rgba(15, 15, 15, 0.85); /* Proper glass background */
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 2147483647;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      pointer-events: auto;
+      transition: all 0.3s ease;
+    }
+    
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    
+    .header-logo .white { color: #fff; }
+    .header-logo .purple { color: #8B5CF6; }
+    
+    .header-nav {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.85rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .nav-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05); /* Subtle hover bg */
+    }
+    
+    .nav-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 140px 20px 60px; /* Interaction fix for header space */
+      text-align: center;
+    }
+    
+    .hero-content {
+      max-width: 700px;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s ease forwards;
+      pointer-events: none; /* Let clicks pass through empty space */
+    }
+    
+    .hero-content > * { pointer-events: auto; } /* Re-enable content clicks */
+    
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .hero-badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent);
+      background: rgba(139, 92, 246, 0.1);
+      padding: 6px 14px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .hero-title {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    
+    .hero-title .accent { color: var(--accent); }
+    
+    .hero-subtitle {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto 32px;
+      line-height: 1.6;
+    }
+    
+    .hero-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+    
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    
+    .btn-primary:hover {
+      filter: brightness(1.15);
+      transform: translateY(-2px);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.2);
+    }
+    
+    .scroll-hint {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--muted);
+      animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-6px); }
+    }
+    
+    /* ===== GAMES MARQUEE ===== */
+    .games-section {
+      padding: 60px 0 80px;
+      overflow: hidden;
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      margin-bottom: 24px;
+    }
+    
+    .section-header h2 { font-size: 1.5rem; font-weight: 700; }
+    
+    .section-header button {
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.2s;
+    }
+    
+    .section-header button:hover { opacity: 0.8; }
+    
+    /* Marquee */
+    .marquee-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .marquee-row {
+      display: flex;
+      width: max-content;
+      will-change: transform;
+    }
+    
+    /* VERY SLOW - 480s for gentle scroll */
+    .marquee-row.left { animation: scroll-left 480s linear infinite; }
+    .marquee-row.right { animation: scroll-right 480s linear infinite; }
+    
+    @keyframes scroll-left {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    
+    @keyframes scroll-right {
+      0% { transform: translateX(-50%); }
+      100% { transform: translateX(0); }
+    }
+    
+    .marquee-row:hover { animation-play-state: paused; }
+    
+    .game-card {
+      width: 220px;
+      height: 90px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    
+    .game-card:hover {
+      background: var(--card-hover);
+      border-color: rgba(139, 92, 246, 0.4);
+      transform: scale(1.03);
+    }
+    
+    .game-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 10px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.05);
+    }
+    
+    .game-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+    .game-name { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .game-category { font-size: 0.7rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    /* ===== STICKY SCROLL FEATURES ===== */
+    .features-section {
+      padding: 0;
+      position: relative;
+    }
+    
+    .features-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+    
+    .features-wrapper {
+      display: flex;
+      gap: 60px;
+      align-items: flex-start;
+      position: relative;
+    }
+    
+    .features-text {
+      flex: 1;
+      max-width: 500px;
+      padding-top: 15vh;
+      padding-bottom: 20vh;
+    }
+    
+    .feature-block {
+      /* More spacing for sticky scroll effect */
+      padding: 150px 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0.2;
+      transition: opacity 0.4s ease;
+    }
+    
+    .feature-block.active {
+      opacity: 1;
+    }
+    
+    .feature-block h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    
+    /* Interactive Card - Sticky */
+    .features-visual {
+      flex: 0 0 400px; /* Fixed width */
+      position: sticky;
+      top: 140px; /* Below header */
+      height: fit-content; /* Don't stretch */
+      align-self: flex-start; /* Align to top for sticky */
+    }
+    
+    .feature-visual-card {
+      width: 360px;
+      height: 360px;
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+      background: #0f0f0f;
+      border: 1px solid var(--border);
+      transition: transform 0.3s ease;
+    }
+    
+    .feature-visual-card:hover { transform: translateY(-5px); }
+    
+    /* Image Implementation */
+    #feature-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain; 
+      padding: 40px;
+      transition: all 0.4s ease;
+    }
+    
+    /* Hover: Blur Image */
+    .feature-visual-card:hover #feature-img {
+      filter: blur(8px) brightness(0.5);
+      transform: scale(1.05);
+    }
+    
+    /* Overlay Content - Bottom Left */
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start; /* Align Left */
+      justify-content: flex-end; /* Align Bottom */
+      padding: 30px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+    
+    .feature-visual-card:hover .card-overlay {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .card-title {
+      font-size: 1.2rem; /* "Text should be smaller at the bottom left" */
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #fff;
+      text-align: left;
+    }
+    
+    /* Text-Only Play Button */
+    .play-now-btn {
+      background: transparent;
+      color: rgba(255,255,255,0.8);
+      border: none;
+      padding: 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    
+    .play-now-btn:hover {
+      color: #fff; /* Text Highlight */
+      text-decoration: none; /* No underline, just color */
+    }
+    
+    .play-now-btn i { transition: transform 0.2s; }
+    .play-now-btn:hover i { transform: translateX(5px); /* Arrow Highlight */ }
+    
+    /* ===== CTA ===== */
+    .cta-section {
+      text-align: center;
+      padding: 80px 40px;
+    }
+    
+    .cta-section h2 { font-size: 2rem; margin-bottom: 12px; }
+    .cta-section p { color: var(--muted); margin-bottom: 24px; }
+    
+    /* ===== FOOTER ===== */
+    footer {
+      padding: 32px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    
+    footer p { color: var(--muted); font-size: 0.8rem; }
+    
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .footer-links button:hover { color: var(--text); }
+    
+    /* ===== CONTEXT MENU ===== */
+    .context-menu {
+      position: fixed;
+      background: #151515;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 0;
+      min-width: 180px;
+      z-index: 10000;
+      display: none;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    }
+    
+    .context-menu.visible { display: block; }
+    
+    .context-item {
+      padding: 10px 16px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      transition: background 0.15s;
+    }
+    
+    .context-item:hover { background: rgba(139, 92, 246, 0.2); }
+    .context-item i { color: var(--muted); width: 16px; text-align: center; }
+    .context-divider { height: 1px; background: var(--border); margin: 6px 0; }
+    
+    /* ===== MOBILE ===== */
+    @media (max-width: 900px) {
+      .header { padding: 0 20px; }
+      .header-nav { display: none; }
+      .hero { padding: 80px 20px 40px; }
+      .section-header { padding: 0 20px; }
+      .features-container { padding: 0 20px; }
+      .features-wrapper { flex-direction: column; }
+      .features-visual { position: relative; top: 0; height: auto; margin-bottom: 40px; }
+      .feature-block { min-height: auto; padding: 40px 0; }
+      footer { padding: 24px 20px; flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <script>function goTo(p){window.location.href=p;}</script>
+  
+  <!-- HEADER -->
+  <header class="header" id="header">
+    <div class="header-logo" onclick="goTo('/home')" style="cursor:pointer; position:relative; z-index:10;">
+      <span class="white">Gamo</span><span class="purple">Launchpad</span>
+    </div>
+    <nav class="header-nav">
+      <button type="button" class="nav-btn" onclick="goTo('/games.html')">Games</button>
+      <button type="button" class="nav-btn" onclick="goTo('/apps.html')">Apps</button>
+      <button type="button" class="nav-btn" onclick="goTo('/d')">Tabs</button>
+      <button type="button" class="nav-btn" onclick="goTo('/settings.html')">Settings</button>
+    </nav>
+  </header>
+  
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <span class="hero-badge">Web Freedom, Redefined</span>
+      <h1 class="hero-title">The <span class="accent">Launchpad</span> for Everything</h1>
+      <p class="hero-subtitle">Games, apps, and unrestricted browsing. One interface, zero restrictions.</p>
+      <div class="hero-buttons">
+        <button type="button" class="btn btn-primary" onclick="goTo('/d')">
+          <i class="fa-solid fa-rocket"></i> Launch Tabs
+        </button>
+        <button type="button" class="btn btn-outline" onclick="goTo('/games.html')">
+          <i class="fa-solid fa-gamepad"></i> Browse Games
+        </button>
+      </div>
+    </div>
+    <div class="scroll-hint"><i class="fa-solid fa-chevron-down"></i></div>
+  </section>
+  
+  <!-- GAMES MARQUEE -->
+  <section class="games-section">
+    <div class="section-header">
+      <h2>Popular Games</h2>
+      <button type="button" onclick="goTo('/games.html')">
+        View all <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+    <div class="marquee-container">
+      <div class="marquee-row left" id="marquee-row-1"></div>
+      <div class="marquee-row right" id="marquee-row-2"></div>
+    </div>
+  </section>
+  
+  <!-- STICKY SCROLL FEATURES -->
+  <section class="features-section">
+    <div class="features-container">
+      <div class="features-wrapper">
+        <div class="features-text">
+          <div class="feature-block" data-feature="0">
+            <h3>Games Library</h3>
+            <p>Hundreds of unblocked games at your fingertips. From classics to modern hits, play instantly without downloads or restrictions. Our library is constantly updated with new titles.</p>
+          </div>
+          <div class="feature-block" data-feature="1">
+            <h3>Apps Collection</h3>
+            <p>Access your favorite social media, productivity tools, and entertainment apps. Stay connected and productive even on restricted networks. All apps work seamlessly through our proxy.</p>
+          </div>
+          <div class="feature-block" data-feature="2">
+            <h3>Web Gateway</h3>
+            <p>Browse any website freely with our built-in proxy. No blocks, no filters, no limits. Experience the open internet the way it was meant to be, with full privacy protection.</p>
+          </div>
+          <div class="feature-block" data-feature="3">
+            <h3>Full Control</h3>
+            <p>Customize your experience with tab cloaking, panic keys, and themes. Stay undetected with our advanced disguise features. Your browsing, your rules.</p>
+          </div>
+        </div>
+        <div class="features-visual">
+          <div class="feature-visual-card" id="feature-visual">
+            <img id="feature-img" src="/assets/media/icons/roblox_stick.png" alt="Feature">
+            <div class="card-overlay">
+              <div class="card-title" id="feature-title">Roblox</div>
+              <button class="play-now-btn" id="feature-btn" onclick="goTo('/games.html')">
+                Play Now <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>Ready to go?</h2>
+    <p>Free, fast, and always available.</p>
+    <button type="button" class="btn btn-primary" onclick="goTo('/d')">
+      <i class="fa-solid fa-rocket"></i> Enter the Launchpad
+    </button>
+  </section>
+  
+  <!-- FOOTER -->
+  <footer>
+    <p>Hope you enjoy! - Gamo Team</p>
+    <div class="footer-links">
+      <button type="button" onclick="goTo('/games.html')">Games</button>
+      <button type="button" onclick="goTo('/apps.html')">Apps</button>
+      <button type="button" onclick="window.open('https://discord.gg/interstellar', '_blank')">Discord</button>
+      <button type="button" onclick="window.open('https://github.com', '_blank')">GitHub</button>
+    </div>
+  </footer>
+  
+  <!-- CONTEXT MENU -->
+  <div class="context-menu" id="context-menu">
+    <div class="context-item" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i> Refresh</div>
+    <div class="context-item" onclick="history.back()"><i class="fa-solid fa-arrow-left"></i> Back</div>
+    <div class="context-divider"></div>
+    <div class="context-item" onclick="goTo('/games.html')"><i class="fa-solid fa-gamepad"></i> Games</div>
+    <div class="context-item" onclick="goTo('/apps.html')"><i class="fa-solid fa-layer-group"></i> Apps</div>
+    <div class="context-item" onclick="goTo('/settings.html')"><i class="fa-solid fa-gear"></i> Settings</div>
+  </div>
+  
+  <script>
+    // Blacklist
+    const blacklist = ['1', 'fancade', 'super mario bros', 'smb', 'shipcraft', 'emovies', 'freedomgpt', 'request', 'custom app'];
+    
+    // Load games
+    fetch('/assets/json/g.min.json')
+      .then(res => res.json())
+      .then(games => {
+        const filtered = games.filter(g => {
+          if (!g.name || g.name.startsWith('!')) return false;
+          const name = g.name.toLowerCase();
+          return !blacklist.some(b => name.includes(b));
+        });
+        
+        const shuffled = filtered.sort(() => Math.random() - 0.5);
+        const half = Math.ceil(shuffled.length / 2);
+        const row1Games = shuffled.slice(0, half);
+        const row2Games = shuffled.slice(half);
+        
+        const row1 = document.getElementById('marquee-row-1');
+        const row2 = document.getElementById('marquee-row-2');
+        
+        function createCard(game) {
+          let iconUrl = '/favicon.png';
+          if (game.img) {
+            if (game.img.startsWith('http')) iconUrl = game.img;
+            else if (game.img.startsWith('/')) iconUrl = game.img;
+            else iconUrl = '/assets/media/icons/' + game.img;
+          } else if (game.image) {
+            iconUrl = game.image;
+          }
+          
+          const category = game.category || game.categories?.[0] || 'Game';
+          
+          const card = document.createElement('div');
+          card.className = 'game-card';
+          card.onclick = function() { goTo('/games.html'); };
+          card.innerHTML = `
+            <img class="game-icon" src="${iconUrl}" alt="${game.name}" onerror="this.src='/favicon.png'">
+            <div class="game-info">
+              <div class="game-name">${game.name}</div>
+              <div class="game-category">${category}</div>
+            </div>
+          `;
+          return card;
+        }
+        
+        row1Games.forEach(g => row1.appendChild(createCard(g)));
+        row1Games.forEach(g => row1.appendChild(createCard(g)));
+        row2Games.forEach(g => row2.appendChild(createCard(g)));
+        row2Games.forEach(g => row2.appendChild(createCard(g)));
+      })
+      .catch(err => console.error('Failed to load games:', err));
+    
+    // Header scroll effect
+    const header = document.getElementById('header');
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > 50) {
+        header.classList.add('solid');
+      } else {
+        header.classList.remove('solid');
+      }
+    });
+    
+    // Manual Scroll Detection for Precision
+    const featureBlocks = document.querySelectorAll('.feature-block');
+    const featureImg = document.getElementById('feature-img');
+    const featureTitle = document.getElementById('feature-title');
+    const featureBtn = document.getElementById('feature-btn');
+    
+    // Better, iconic images (User Provided)
+    const featureData = [
+      { img: '/assets/media/icons/roblox_stick.png', title: 'Roblox', link: '/games.html', action: 'Play Now' },
+      { img: '/assets/media/icons/spotify_stick.png', title: 'Spotify', link: '/apps.html', action: 'Listen' },
+      { img: '/assets/media/icons/chrome_stick.png', title: 'Chrome', link: '/d', action: 'Browse' },
+      { img: '/assets/media/icons/steam.webp', title: 'Steam', link: '/settings.html', action: 'Open' }
+    ];
+    
+    let currentFeatureIndex = -1;
+
+    function updateStickyVisuals() {
+      const windowCenter = window.innerHeight / 2;
+      let closestIndex = 0;
+      let minDiff = Infinity;
+      
+      featureBlocks.forEach((block, index) => {
+        const rect = block.getBoundingClientRect();
+        // Calculate distance from block center to window center
+        const blockCenter = rect.top + (rect.height / 2);
+        const diff = Math.abs(blockCenter - windowCenter);
+        
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestIndex = index;
+        }
+      });
+      
+      // Only update if changed
+      if (closestIndex !== currentFeatureIndex) {
+        currentFeatureIndex = closestIndex;
+        
+        // Highlight Text
+        featureBlocks.forEach(b => b.classList.remove('active'));
+        featureBlocks[closestIndex].classList.add('active');
+        
+        // Update Visuals with Fade
+        const data = featureData[closestIndex];
+        featureImg.style.opacity = '0.5';
+        featureImg.style.transform = 'scale(0.95)';
+        
+        setTimeout(() => {
+          featureImg.src = data.img;
+          featureImg.style.opacity = '1';
+          featureImg.style.transform = 'scale(1)';
+          featureTitle.textContent = data.title;
+          featureBtn.innerHTML = `${data.action} <i class="fa-solid fa-arrow-right"></i>`;
+          featureBtn.onclick = function() { goTo(data.link); };
+        }, 150);
+      }
+    }
+
+    // Run on scroll
+    window.addEventListener('scroll', () => {
+      window.requestAnimationFrame(updateStickyVisuals);
+    });
+    
+    // Initial call
+    updateStickyVisuals();
+    
+    // Context menu
+    const contextMenu = document.getElementById('context-menu');
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      contextMenu.style.left = e.clientX + 'px';
+      contextMenu.style.top = e.clientY + 'px';
+      contextMenu.classList.add('visible');
+    });
+    document.addEventListener('click', function() { contextMenu.classList.remove('visible'); });
+  </script>
+  
+  <script src="./assets/mathematics/bundle.js?v=2025-04-15"></script>
+  <script src="./assets/mathematics/config.js?v=2025-04-15"></script>
+  <script src="/assets/js/nav.js"></script>
+  <script>
+    // Only load music player if NOT in shell (standalone mode)
+    if (window.parent === window || !window.parent.gamoMusicPlayer) {
+      const script = document.createElement('script');
+      script.src = '/assets/js/music-player.js';
+      document.body.appendChild(script);
+    }
+  </script>
+  <script src="/assets/js/m1.js"></script>
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <link rel="shortcut icon" id="tab-favicon" href="favicon.png">
+  <title id="t">Tabs</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/assets/css/music-player.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --bg: #1a1a1a; --bar: #252525; --tab: #2a2a2a; --tab-active: #333; --text: #fff; --muted: rgba(255,255,255,0.5); --accent: #8B5CF6; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', -apple-system, sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    
+    .header { display: flex; align-items: center; padding: 0 16px; height: 50px; background: #111; border-bottom: 1px solid rgba(255,255,255,0.08); gap: 16px; }
+    .header-logo { display: flex; align-items: center; gap: 4px; cursor: pointer; font-weight: 700; font-size: 0.95rem; }
+    .header-logo .white { color: #fff; }
+    .header-logo .purple { color: #8B5CF6; }
+    .header-nav { display: flex; gap: 4px; margin-left: auto; }
+    .header-btn { background: transparent; border: none; color: var(--muted); padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500; }
+    .header-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    
+    .tab-strip { display: flex; background: var(--bar); padding: 6px 6px 0; gap: 2px; align-items: flex-end; }
+    .tab { background: var(--tab); padding: 8px 14px; border-radius: 8px 8px 0 0; cursor: pointer; display: flex; align-items: center; gap: 8px; max-width: 200px; min-width: 100px; transition: background 0.15s; }
+    .tab:hover { background: var(--tab-active); }
+    .tab.active { background: var(--bg); }
+    .tab-favicon { width: 16px; height: 16px; border-radius: 2px; }
+    .tab-title { flex: 1; font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tab-close { width: 16px; height: 16px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--muted); opacity: 0; transition: all 0.15s; }
+    .tab:hover .tab-close { opacity: 1; }
+    .tab-close:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .new-tab-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; color: var(--muted); margin-left: 4px; margin-bottom: 4px; }
+    .new-tab-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    
+    .address-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bar); border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .nav-buttons { display: flex; gap: 4px; }
+    .nav-btn { width: 28px; height: 28px; border: none; background: transparent; color: var(--muted); cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+    .nav-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .url-input { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 8px 16px; color: #fff; font-size: 0.85rem; outline: none; }
+    .url-input:focus { border-color: var(--accent); }
+    
+    .frame-container { flex: 1; background: #000; position: relative; }
+    .browser-frame { width: 100%; height: 100%; border: none; display: none; }
+    .browser-frame.active { display: block; }
+    
+    .new-tab-page { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px; background: var(--bg); }
+    .new-tab-page.active { display: flex; }
+    .ntp-title { font-size: 2rem; font-weight: 300; margin-bottom: 8px; }
+    .ntp-title .white { color: #fff; }
+    .ntp-title .purple { color: #8B5CF6; }
+    .ntp-subtitle { color: var(--muted); margin-bottom: 30px; font-size: 0.9rem; }
+    .ntp-search { width: 100%; max-width: 500px; position: relative; margin-bottom: 30px; }
+    .ntp-search input { width: 100%; padding: 14px 20px 14px 45px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); background: #252525; color: #fff; font-size: 0.95rem; outline: none; }
+    .ntp-search input:focus { border-color: var(--accent); }
+    .ntp-search i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+    .quick-links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .quick-link { width: 90px; padding: 14px 10px; background: #252525; border-radius: 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; }
+    .quick-link:hover { background: #333; transform: translateY(-2px); }
+    .quick-link-icon { width: 36px; height: 36px; background: rgba(255,255,255,0.08); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .quick-link-title { font-size: 0.7rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <!-- Replaced with Pill Header -->
+  <style>
+    .header {
+      position: relative /* Not fixed in tabs, flows with layout */;
+      top: 0; left: 0; right: 0;
+      margin: 10px auto; /* Centered with margin */
+      width: 95%; max-width: 900px; height: 50px;
+      background: rgba(15, 15, 15, 0.85); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 100px;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); z-index: 100;
+      flex-shrink: 0;
+    }
+    .header-logo { font-size: 0.9rem; }
+  </style>
+  <div class="header">
+    <div class="header-logo" onclick="window.location.href='/home'">
+      <span class="white">Gamo</span><span class="purple">Launchpad</span>
+    </div>
+    <nav class="header-nav">
+      <button class="header-btn" onclick="window.location.href='/games.html'">Games</button>
+      <button class="header-btn" onclick="window.location.href='/apps.html'">Apps</button>
+      <button class="header-btn" onclick="window.location.href='/settings.html'">Settings</button>
+    </nav>
+  </div>
+  
+  <div class="tab-strip" id="tab-strip">
+    <div class="new-tab-btn" onclick="createTab()" title="New Tab"><i class="fa-solid fa-plus"></i></div>
+  </div>
+  
+  <div class="address-bar">
+    <div class="nav-buttons">
+      <button class="nav-btn" onclick="goBack()" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+      <button class="nav-btn" onclick="goForward()" title="Forward"><i class="fa-solid fa-arrow-right"></i></button>
+      <button class="nav-btn" onclick="reload()" title="Reload"><i class="fa-solid fa-rotate-right"></i></button>
+      <button class="nav-btn" onclick="goHome()" title="Home"><i class="fa-solid fa-house"></i></button>
+    </div>
+    <input type="text" class="url-input" id="url-input" placeholder="Search or enter URL..." onkeydown="if(event.key==='Enter')navigate(this.value)">
+  </div>
+  
+  <div class="frame-container" id="frame-container">
+    <div class="new-tab-page" id="ntp-template">
+      <h1 class="ntp-title"><span class="white">Gamo</span> <span class="purple">Launchpad</span></h1>
+      <p class="ntp-subtitle">Browse freely with our secure proxy</p>
+      <div class="ntp-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="ntp-search-input" placeholder="Search or enter URL..." onkeydown="if(event.key==='Enter')navigate(this.value)">
+      </div>
+      <div class="quick-links">
+        <div class="quick-link" onclick="navigate('https://www.google.com')">
+          <div class="quick-link-icon" style="color:#4285f4"><i class="fa-brands fa-google"></i></div>
+          <span class="quick-link-title">Google</span>
+        </div>
+        <div class="quick-link" onclick="navigate('https://www.youtube.com')">
+          <div class="quick-link-icon" style="color:#ff0000"><i class="fa-brands fa-youtube"></i></div>
+          <span class="quick-link-title">YouTube</span>
+        </div>
+        <div class="quick-link" onclick="navigate('https://discord.com/app')">
+          <div class="quick-link-icon" style="color:#5865f2"><i class="fa-brands fa-discord"></i></div>
+          <span class="quick-link-title">Discord</span>
+        </div>
+        <div class="quick-link" onclick="window.location.href='/games.html'">
+          <div class="quick-link-icon" style="color:#8b5cf6"><i class="fa-solid fa-gamepad"></i></div>
+          <span class="quick-link-title">Games</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./assets/mathematics/bundle.js"></script>
+  <script src="./assets/mathematics/config.js"></script>
+  
+  <script>
+    let tabs = [];
+    let activeTabId = null;
+    
+    // Get engine name from settings
+    function getEngineName() {
+      const engineName = localStorage.getItem('enginename');
+      if (engineName) return engineName;
+      // Check engine URL as fallback
+      const engineUrl = localStorage.getItem('engine') || '';
+      if (engineUrl.includes('google')) return 'Google';
+      if (engineUrl.includes('bing')) return 'Bing';
+      if (engineUrl.includes('ecosia')) return 'Ecosia';
+      if (engineUrl.includes('startpage')) return 'Startpage';
+      return 'DuckDuckGo';
+    }
+    
+    // Get engine URL
+    function getEngineUrl() {
+      const stored = localStorage.getItem('engine');
+      if (stored) return stored;
+      return 'https://duckduckgo.com/?q=';
+    }
+    
+    // Update search placeholders
+    function updateSearchPlaceholders() {
+      const name = getEngineName();
+      const placeholder = 'Search ' + name + ' or enter URL...';
+      document.getElementById('url-input').placeholder = placeholder;
+      document.querySelectorAll('.ntp-search input').forEach(el => {
+        el.placeholder = placeholder;
+      });
+    }
+    
+    function createTab(url = null) {
+      const id = Date.now();
+      const tab = { id, url, title: 'New Tab', favicon: '/favicon.png' };
+      tabs.push(tab);
+      
+      const tabEl = document.createElement('div');
+      tabEl.className = 'tab';
+      tabEl.id = 'tab-' + id;
+      tabEl.innerHTML = `
+        <img class="tab-favicon" src="/favicon.png" id="favicon-${id}" onerror="this.src='/favicon.png'">
+        <span class="tab-title">New Tab</span>
+        <span class="tab-close" onclick="event.stopPropagation(); closeTab(${id})"><i class="fa-solid fa-xmark"></i></span>
+      `;
+      tabEl.onclick = () => switchTab(id);
+      
+      const strip = document.getElementById('tab-strip');
+      strip.insertBefore(tabEl, strip.lastElementChild);
+      
+      const container = document.getElementById('frame-container');
+      if (url) {
+        const iframe = document.createElement('iframe');
+        iframe.className = 'browser-frame';
+        iframe.id = 'frame-' + id;
+        iframe.src = getProxyUrl(url);
+        container.appendChild(iframe);
+        tab.title = url;
+        tab.url = url;
+        try {
+          const hostname = new URL(url.startsWith('http') ? url : 'https://' + url).hostname;
+          updateTabDisplay(id, hostname, 'https://www.google.com/s2/favicons?sz=32&domain=' + hostname);
+        } catch (e) {}
+      } else {
+        const ntp = document.getElementById('ntp-template').cloneNode(true);
+        ntp.id = 'ntp-' + id;
+        ntp.classList.remove('active');
+        ntp.querySelector('.ntp-search input').onkeydown = function(e) { if(e.key==='Enter') navigate(this.value); };
+        ntp.querySelectorAll('.quick-link').forEach((ql, i) => {
+          const urls = ['https://www.google.com', 'https://www.youtube.com', 'https://discord.com/app', null];
+          if (urls[i]) ql.onclick = () => navigate(urls[i]);
+          else ql.onclick = () => window.location.href = '/games.html';
+        });
+        container.appendChild(ntp);
+      }
+      
+      switchTab(id);
+      updateSearchPlaceholders();
+      return id;
+    }
+    
+    function updateTabDisplay(id, title, favicon) {
+      const tab = tabs.find(t => t.id === id);
+      if (tab) {
+        tab.title = title;
+        tab.favicon = favicon;
+      }
+      const titleEl = document.querySelector('#tab-' + id + ' .tab-title');
+      const faviconEl = document.getElementById('favicon-' + id);
+      if (titleEl) titleEl.textContent = title;
+      if (faviconEl && favicon) faviconEl.src = favicon;
+    }
+    
+    function switchTab(id) {
+      activeTabId = id;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      const tabEl = document.getElementById('tab-' + id);
+      if (tabEl) tabEl.classList.add('active');
+      
+      document.querySelectorAll('.browser-frame, .new-tab-page').forEach(el => el.classList.remove('active'));
+      const frame = document.getElementById('frame-' + id);
+      const ntp = document.getElementById('ntp-' + id);
+      if (frame) frame.classList.add('active');
+      if (ntp) ntp.classList.add('active');
+      
+      const tab = tabs.find(t => t.id === id);
+      document.getElementById('url-input').value = tab?.url || '';
+    }
+    
+    function closeTab(id) {
+      const idx = tabs.findIndex(t => t.id === id);
+      if (idx === -1) return;
+      tabs.splice(idx, 1);
+      document.getElementById('tab-' + id)?.remove();
+      document.getElementById('frame-' + id)?.remove();
+      document.getElementById('ntp-' + id)?.remove();
+      if (tabs.length === 0) { createTab(); }
+      else if (activeTabId === id) { switchTab(tabs[Math.max(0, idx - 1)].id); }
+    }
+    
+    function getProxyUrl(url) {
+      let finalUrl = url;
+      if (!url.includes('.') || url.includes(' ')) {
+        finalUrl = getEngineUrl() + encodeURIComponent(url);
+      } else if (!url.startsWith('http')) {
+        finalUrl = 'https://' + url;
+      }
+      if (typeof __uv$config !== 'undefined') {
+        return __uv$config.prefix + __uv$config.encodeUrl(finalUrl);
+      }
+      return '/uv/service/' + encodeURIComponent(finalUrl);
+    }
+    
+    function navigate(inputUrl) {
+      if (!inputUrl.trim()) return;
+      const tab = tabs.find(t => t.id === activeTabId);
+      if (!tab) return;
+      
+      // Determine final URL
+      let finalUrl = inputUrl;
+      let displayUrl = inputUrl;
+      
+      if (!inputUrl.includes('.') || inputUrl.includes(' ')) {
+        finalUrl = getEngineUrl() + encodeURIComponent(inputUrl);
+        displayUrl = inputUrl; // Keep search term in URL bar
+      } else if (!inputUrl.startsWith('http')) {
+        finalUrl = 'https://' + inputUrl;
+        displayUrl = inputUrl;
+      }
+      
+      tab.url = displayUrl;
+      
+      document.getElementById('ntp-' + activeTabId)?.remove();
+      let iframe = document.getElementById('frame-' + activeTabId);
+      if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.className = 'browser-frame active';
+        iframe.id = 'frame-' + activeTabId;
+        document.getElementById('frame-container').appendChild(iframe);
+      }
+      
+      iframe.src = getProxyUrl(inputUrl);
+      document.getElementById('url-input').value = displayUrl;
+      
+      // Update tab display
+      try {
+        const hostname = new URL(finalUrl).hostname;
+        updateTabDisplay(activeTabId, hostname, 'https://www.google.com/s2/favicons?sz=32&domain=' + hostname);
+      } catch (e) {
+        updateTabDisplay(activeTabId, displayUrl, '/favicon.png');
+      }
+    }
+    
+    function goBack() { const f = document.getElementById('frame-' + activeTabId); if(f) try { f.contentWindow.history.back(); } catch(e){} }
+    function goForward() { const f = document.getElementById('frame-' + activeTabId); if(f) try { f.contentWindow.history.forward(); } catch(e){} }
+    function reload() { const f = document.getElementById('frame-' + activeTabId); if(f) try { f.contentWindow.location.reload(); } catch(e){} }
+    function goHome() {
+      const tab = tabs.find(t => t.id === activeTabId);
+      if (tab) {
+        tab.url = null;
+        tab.title = 'New Tab';
+        document.getElementById('frame-' + activeTabId)?.remove();
+        const ntp = document.getElementById('ntp-template').cloneNode(true);
+        ntp.id = 'ntp-' + activeTabId;
+        ntp.classList.add('active');
+        ntp.querySelector('.ntp-search input').onkeydown = function(e) { if(e.key==='Enter') navigate(this.value); };
+        ntp.querySelectorAll('.quick-link').forEach((ql, i) => {
+          const urls = ['https://www.google.com', 'https://www.youtube.com', 'https://discord.com/app', null];
+          if (urls[i]) ql.onclick = () => navigate(urls[i]);
+          else ql.onclick = () => window.location.href = '/games.html';
+        });
+        document.getElementById('frame-container').appendChild(ntp);
+        document.getElementById('url-input').value = '';
+        updateTabDisplay(activeTabId, 'New Tab', '/favicon.png');
+        updateSearchPlaceholders();
+      }
+    }
+    
+    // Initialize
+    createTab();
+  </script>
+  
+  <script src="/assets/js/music-player.js"></script>
+  <script src="/assets/js/m1.js"></script>
+</body>
+</html>

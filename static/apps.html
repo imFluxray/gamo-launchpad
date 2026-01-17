@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="referrer" content="no-referrer" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" id="tab-favicon" href="favicon.png" />
+  <title id="t">Gamo Launchpad</title>
+  <link rel="stylesheet" href="/assets/css/global.css?v=7" />
+  <link rel="stylesheet" href="/assets/css/music-player.css?v=1" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* ===== FLOATING HEADER (Universal Pill) ===== */
+    .header {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 900px;
+      height: 60px;
+      background: rgba(15, 15, 15, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 2147483647;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      pointer-events: auto;
+      transition: all 0.3s ease;
+    }
+    
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+    
+    .header-logo .white { color: #fff; }
+    .header-logo .purple { color: #8B5CF6; }
+    
+    .header-nav {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.85rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .nav-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .nav-btn:active {
+      transform: scale(0.95);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Inter', -apple-system, sans-serif;
+      min-height: 100vh;
+    }
+    
+    .page-container {
+      display: flex;
+      min-height: 100vh;
+      padding-top: 80px;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: rgba(15, 15, 15, 0.8);
+      border-right: 1px solid rgba(255,255,255,0.05);
+      padding: 24px;
+      position: fixed;
+      left: 0;
+      top: 100px;
+      bottom: 0;
+      overflow-y: auto;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    }
+    
+    .sidebar.collapsed {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    
+    .sidebar-toggle {
+      position: fixed;
+      left: 270px;
+      top: 110px;
+      width: 36px;
+      height: 36px;
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      z-index: 101;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .sidebar-toggle:hover { background: rgba(139, 92, 246, 0.4); }
+    .sidebar-toggle.collapsed { left: 10px; }
+    .sidebar-toggle i { transition: transform 0.3s; }
+    .sidebar-toggle.collapsed i { transform: rotate(180deg); }
+    .main-content.expanded { margin-left: 0; }
+    
+    .sidebar-section {
+      margin-bottom: 32px;
+    }
+    
+    .sidebar-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #666;
+      margin-bottom: 16px;
+    }
+    
+    .search-box {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.3s;
+    }
+    
+    .search-box:focus {
+      border-color: #3B82F6;
+      background: rgba(59, 130, 246, 0.1);
+    }
+    
+    .category-list {
+      list-style: none;
+    }
+    
+    .category-item {
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+      color: #888;
+      font-size: 0.9rem;
+    }
+    
+    .category-item:hover {
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+    }
+    
+    .category-item.active {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+      color: #fff;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    
+    .category-item i {
+      width: 20px;
+      text-align: center;
+    }
+    
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      padding: 32px;
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .page-header {
+      margin-bottom: 32px;
+    }
+    
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .page-subtitle {
+      color: #666;
+      font-size: 1rem;
+    }
+    
+    .results-count {
+      color: #666;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+    }
+    
+    /* Apps Grid */
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 20px;
+    }
+    
+    .app-card {
+      background: rgba(20, 20, 20, 0.8);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    
+    .app-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(59, 130, 246, 0.5);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 40px rgba(59, 130, 246, 0.15);
+    }
+    
+    .app-card-inner {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+    }
+    
+    .app-icon {
+      width: 90px;
+      height: 90px;
+      border-radius: 16px;
+      object-fit: cover;
+      margin-bottom: 12px;
+      transition: transform 0.3s;
+    }
+    
+    .app-card:hover .app-icon {
+      transform: scale(1.05);
+    }
+    
+    .app-name {
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-align: center;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .app-name.error { color: #ff6b6b; }
+    .app-name.warning { color: #feca57; }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: #666;
+    }
+    
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      opacity: 0.3;
+    }
+    
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+    
+    .loading i {
+      font-size: 2rem;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Mobile */
+    @media (max-width: 900px) {
+      .sidebar {
+        display: none;
+      }
+      
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+      }
+      
+      .apps-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 12px;
+      }
+      
+      .app-icon {
+        width: 70px;
+        height: 70px;
+      }
+      
+      .page-title {
+        font-size: 1.8rem;
+      }
+    }
+
+    .mobile-search {
+      display: none;
+      margin-bottom: 20px;
+    }
+    
+    @media (max-width: 900px) {
+      .mobile-search {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script>function goTo(p){window.location.href=p;}</script>
+  <!-- Universal  <!-- HEADER -->
+  <header class="header" id="header">
+    <div class="header-logo" onclick="goTo('/home')" style="cursor:pointer; position:relative; z-index:10;">
+      <span class="white">Gamo</span><span class="purple">Launchpad</span>
+    </div>
+    <nav class="header-nav">
+      <button type="button" class="nav-btn" onclick="goTo('/games.html')">Games</button>
+      <button type="button" class="nav-btn" onclick="goTo('/apps.html')" style="color:#fff; background:rgba(255,255,255,0.1);">Apps</button>
+      <button type="button" class="nav-btn" onclick="goTo('/d')">Tabs</button>
+      <button type="button" class="nav-btn" onclick="goTo('/settings.html')">Settings</button>
+    </nav>
+  </header>
+  
+  <style>
+    .global-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      z-index: 1000;
+      pointer-events: auto;
+    }
+    .header-logo { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
+    .header-logo img { width: 28px; height: 28px; pointer-events: none; }
+    .header-logo span { font-weight: 700; font-size: 1rem; }
+    .header-nav { display: flex; gap: 8px; }
+    .nav-btn {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.9rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      padding: 10px 16px; /* Larger click area */
+      transition: color 0.2s ease;
+      position: relative;
+      z-index: 10;
+      pointer-events: auto;
+    }
+    .nav-btn:hover { color: #fff; }
+    .nav-btn.active { color: #fff; }
+    .header-nav { display: flex; gap: 32px; }
+    @media (max-width: 600px) { .header-nav { display: none; } .global-header { padding: 0 16px; } }
+  </style>
+  
+  <div class="page-container">
+    <!-- Sidebar Toggle -->
+    <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Search</div>
+        <input type="text" class="search-box" id="search" placeholder="Search apps..." onkeyup="filterApps()">
+      </div>
+      
+      <div class="sidebar-section">
+        <div class="sidebar-title">Categories</div>
+        <ul class="category-list" id="category-list">
+          <li class="category-item active" data-category="all" onclick="setCategory('all')">
+            <i class="fa-solid fa-grip"></i> All Apps
+          </li>
+          <li class="category-item" data-category="social" onclick="setCategory('social')">
+            <i class="fa-solid fa-users"></i> Social
+          </li>
+          <li class="category-item" data-category="stream" onclick="setCategory('stream')">
+            <i class="fa-solid fa-play"></i> Streaming
+          </li>
+          <li class="category-item" data-category="message" onclick="setCategory('message')">
+            <i class="fa-solid fa-comment"></i> Messaging
+          </li>
+          <li class="category-item" data-category="media" onclick="setCategory('media')">
+            <i class="fa-solid fa-film"></i> TV & Movies
+          </li>
+          <li class="category-item" data-category="game" onclick="setCategory('game')">
+            <i class="fa-solid fa-gamepad"></i> Game Sites
+          </li>
+          <li class="category-item" data-category="cloud" onclick="setCategory('cloud')">
+            <i class="fa-solid fa-cloud"></i> Cloud Gaming
+          </li>
+          <li class="category-item" data-category="tool" onclick="setCategory('tool')">
+            <i class="fa-solid fa-wrench"></i> Tools
+          </li>
+          <li class="category-item" data-category="ai" onclick="setCategory('ai')">
+            <i class="fa-solid fa-robot"></i> AI
+          </li>
+          <li class="category-item" data-category="mail" onclick="setCategory('mail')">
+            <i class="fa-solid fa-envelope"></i> Mail
+          </li>
+        </ul>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="page-header">
+        <h1 class="page-title">App Collection</h1>
+        <p class="page-subtitle">Web apps and tools at your fingertips</p>
+      </header>
+      
+      <!-- Mobile Search -->
+      <div class="mobile-search">
+        <input type="text" class="search-box" placeholder="Search apps..." onkeyup="filterApps()" style="width: 100%;">
+      </div>
+      
+      <div class="results-count" id="results-count"></div>
+      
+      <div class="apps-grid" id="apps-grid">
+        <div class="loading">
+          <i class="fa-solid fa-spinner"></i>
+          <p>Loading apps...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/assets/js/index-3.js"></script>
+  <script>
+    let allApps = [];
+    let currentCategory = 'all';
+    let searchQuery = '';
+    
+    // Fetch apps data
+    fetch('/assets/json/a.min.json')
+      .then(res => res.json())
+      .then(apps => {
+        // Blacklist of apps to hide
+        const blacklist = ['1', 'fancade', 'super mario bros', 'smb', 'shipcraft', 'emovies', 'freedomgpt', 'request', 'custom app'];
+        
+        // Filter out unwanted items
+        allApps = apps.filter(a => {
+          if (!a.name || a.name.startsWith('!')) return false;
+          const name = a.name.toLowerCase();
+          if (name.includes('request') || name.includes('custom app')) return false;
+          return !blacklist.some(b => name.includes(b));
+        });
+        allApps.sort((a, b) => a.name.localeCompare(b.name));
+        renderApps();
+      })
+      .catch(err => {
+        document.getElementById('apps-grid').innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-exclamation-triangle"></i>
+            <p>Failed to load apps</p>
+          </div>
+        `;
+      });
+    
+    function renderApps() {
+      const grid = document.getElementById('apps-grid');
+      const filteredApps = allApps.filter(app => {
+        const matchesSearch = app.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesCategory = currentCategory === 'all' || 
+          (app.categories && app.categories.includes(currentCategory));
+        return matchesSearch && matchesCategory;
+      });
+      
+      document.getElementById('results-count').textContent = 
+        `Showing ${filteredApps.length} of ${allApps.length} apps`;
+      
+      if (filteredApps.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <i class="fa-solid fa-search"></i>
+            <p>No apps found</p>
+          </div>
+        `;
+        return;
+      }
+      
+      grid.innerHTML = filteredApps.map(app => `
+        <div class="app-card" onclick="launchApp('${app.link || ''}', ${app.local || false}, ${app.blank || false})">
+          <div class="app-card-inner">
+            <img class="app-icon" src="${app.image || ''}" alt="${app.name}" loading="lazy" onerror="this.style.display='none'">
+            <span class="app-name ${app.error ? 'error' : ''} ${app.partial || app.load ? 'warning' : ''}">${app.name}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function filterApps() {
+      const inputs = document.querySelectorAll('.search-box');
+      searchQuery = inputs[0].value || inputs[1]?.value || '';
+      renderApps();
+    }
+    
+    function setCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.category-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.category === cat);
+      });
+      renderApps();
+    }
+    
+    function launchApp(link, isLocal, isBlank) {
+      if (!link) return;
+      
+      if (isLocal) {
+        // Local apps use the rx route
+        sessionStorage.setItem('GoUrl', link);
+        window.open('/rx', '_blank');
+      } else if (isBlank && typeof blank === 'function') {
+        // Opens in about:blank iframe
+        blank(link);
+      } else {
+        // External apps open in new tab via proxy
+        if (typeof __uv$config !== 'undefined') {
+          const proxiedUrl = __uv$config.prefix + __uv$config.encodeUrl(link);
+          window.open(proxiedUrl, '_blank');
+        } else {
+          window.open(link, '_blank');
+        }
+      }
+    }
+    
+    function toggleSidebar() {
+      const sidebar = document.querySelector('.sidebar');
+      const toggle = document.getElementById('sidebar-toggle');
+      const content = document.querySelector('.main-content');
+      sidebar.classList.toggle('collapsed');
+      toggle.classList.toggle('collapsed');
+      content.classList.toggle('expanded');
+    }
+    
+    // Custom context menu
+    document.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      const menu = document.getElementById('context-menu');
+      menu.style.left = e.clientX + 'px';
+      menu.style.top = e.clientY + 'px';
+      menu.classList.add('visible');
+    });
+    document.addEventListener('click', () => document.getElementById('context-menu')?.classList.remove('visible'));
+  </script>
+  
+  <!-- Context Menu -->
+  <div class="context-menu" id="context-menu" style="position:fixed;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:8px 0;min-width:180px;z-index:10000;display:none;box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+    <div class="context-item" onclick="location.reload()" style="padding:10px 16px;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:10px;color:#fff;"><i class="fa-solid fa-rotate-right" style="color:rgba(255,255,255,0.5);width:16px;"></i> Refresh</div>
+    <div class="context-item" onclick="history.back()" style="padding:10px 16px;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:10px;color:#fff;"><i class="fa-solid fa-arrow-left" style="color:rgba(255,255,255,0.5);width:16px;"></i> Back</div>
+    <div style="height:1px;background:rgba(255,255,255,0.08);margin:6px 0;"></div>
+    <div class="context-item" onclick="window.location.href='/'" style="padding:10px 16px;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:10px;color:#fff;"><i class="fa-solid fa-home" style="color:rgba(255,255,255,0.5);width:16px;"></i> Home</div>
+    <div class="context-item" onclick="window.location.href='/games.html'" style="padding:10px 16px;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:10px;color:#fff;"><i class="fa-solid fa-gamepad" style="color:rgba(255,255,255,0.5);width:16px;"></i> Games</div>
+    <div class="context-item" onclick="window.location.href='/settings.html'" style="padding:10px 16px;font-size:0.85rem;cursor:pointer;display:flex;align-items:center;gap:10px;color:#fff;"><i class="fa-solid fa-gear" style="color:rgba(255,255,255,0.5);width:16px;"></i> Settings</div>
+  </div>
+  <style>.context-menu.visible{display:block !important;}.context-item:hover{background:rgba(139,92,246,0.15);}</style>
+  
+  <script src="./assets/mathematics/bundle.js?v=2025-04-15"></script>
+  <script src="./assets/mathematics/config.js?v=2025-04-15"></script>
+  <script src="/assets/js/nav.js"></script>
+  <script>
+    // Only load music player if NOT in shell (standalone mode)
+    if (window.parent === window || !window.parent.gamoMusicPlayer) {
+      const script = document.createElement('script');
+      script.src = '/assets/js/music-player.js';
+      document.body.appendChild(script);
+    }
+  </script>
+  <script src="/assets/js/m1.js"></script>
+</body>
+</html>

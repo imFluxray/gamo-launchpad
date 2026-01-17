@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <link rel="shortcut icon" id="tab-favicon" href="favicon.png">
+  <title id="t">Gamo Launchpad</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/assets/css/music-player.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --accent: #8B5CF6; --bg: #0a0a0a; --card: #111111; --border: rgba(255,255,255,0.08); --text: #fff; --muted: rgba(255,255,255,0.5); }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    
+    /* Pill Header */
+    .header {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 900px;
+      height: 60px;
+      background: rgba(15, 15, 15, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 2000;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+    .header-logo { display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 700; font-size: 1.1rem; }
+    .header-logo .white { color: #fff; }
+    .header-logo .purple { color: #8B5CF6; }
+    .header-nav { display: flex; gap: 8px; }
+    .nav-btn { background: transparent; border: none; color: rgba(255,255,255,0.6); padding: 8px 18px; border-radius: 20px; cursor: pointer; font-family: inherit; font-size: 0.9rem; font-weight: 500; transition: all 0.2s; }
+    .nav-btn:hover { color: #fff; background: rgba(255,255,255,0.05); }
+    .nav-btn.active { color: #fff; background: rgba(139,92,246,0.2); }
+    
+    .settings-layout { display: flex; padding-top: 100px; max-width: 1100px; margin: 0 auto; padding-left: 20px; padding-right: 20px; gap: 40px; }
+    .sidebar { width: 220px; flex-shrink: 0; position: sticky; top: 100px; height: fit-content; }
+    .sidebar-header { margin-bottom: 20px; }
+    .sidebar-header h2 { font-size: 1.1rem; margin-bottom: 4px; }
+    .version-badge { background: var(--accent); font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+    .sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
+    .s-btn { background: none; border: none; color: var(--muted); text-align: left; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 0.85rem; font-weight: 500; display: flex; align-items: center; gap: 10px; transition: all 0.2s; }
+    .s-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
+    .s-btn.active { background: rgba(139,92,246,0.15); color: var(--accent); }
+    .s-btn i { width: 16px; text-align: center; }
+    
+    .content { flex: 1; padding-bottom: 60px; }
+    .section { display: none; }
+    .section.active { display: block; }
+    .section h2 { font-size: 1.2rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 12px; }
+    .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .card-header i { color: var(--accent); }
+    .card-header h3 { font-size: 0.9rem; }
+    .card p { color: var(--muted); font-size: 0.8rem; margin-bottom: 12px; }
+    .card-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    
+    input[type="text"], select { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; color: #fff; font-size: 0.85rem; outline: none; min-width: 140px; }
+    input[type="text"]:focus, select:focus { border-color: var(--accent); }
+    
+    .btn { padding: 10px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; transition: all 0.2s; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-secondary { background: rgba(255,255,255,0.1); color: var(--text); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.15); }
+    
+    .toggle { position: relative; width: 44px; height: 24px; }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-track { position: absolute; inset: 0; background: rgba(255,255,255,0.1); border-radius: 24px; cursor: pointer; transition: background 0.2s; }
+    .toggle-track::after { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
+    .toggle input:checked + .toggle-track { background: var(--accent); }
+    .toggle input:checked + .toggle-track::after { transform: translateX(20px); }
+    
+    .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+    .info-item { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 6px; text-align: center; }
+    .info-item span { display: block; color: var(--muted); font-size: 0.6rem; text-transform: uppercase; margin-bottom: 4px; }
+    .info-item strong { font-size: 0.85rem; }
+    
+    .changelog { background: rgba(139,92,246,0.08); border: 1px solid rgba(139,92,246,0.2); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .changelog h3 { font-size: 0.95rem; margin-bottom: 12px; }
+    .changelog ul { list-style: none; }
+    .changelog li { font-size: 0.85rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .tag { font-size: 0.6rem; font-weight: 800; padding: 2px 5px; border-radius: 3px; text-transform: uppercase; }
+    .tag.new { background: #3b82f6; color: #fff; }
+    .tag.fix { background: #22c55e; color: #000; }
+    .tag.sec { background: #eab308; color: #000; }
+    
+    .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #222; color: #fff; padding: 14px 28px; border-radius: 10px; font-size: 0.9rem; box-shadow: 0 8px 30px rgba(0,0,0,0.4); z-index: 3000; opacity: 0; transition: all 0.3s ease; border: 1px solid var(--border); }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { border-left: 4px solid #22c55e; }
+    .toast.error { border-left: 4px solid #ef4444; }
+    
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; }
+    .modal.open { display: flex; }
+    .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 400px; text-align: center; position: relative; }
+    .modal-close { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-close:hover { background: #dc2626; color: #fff; }
+    .credits-title { font-size: 1.3rem; margin-bottom: 20px; color: var(--accent); }
+    .credit-item { margin-bottom: 16px; }
+    .credit-role { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 2px; }
+    .credit-name { font-size: 1rem; font-weight: 600; }
+    .credit-note { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.8rem; }
+    
+    .hidden { display: none; }
+    @media (max-width: 768px) { 
+      .settings-layout { flex-direction: column; padding-top: 100px; } 
+      .header { width: 95%; padding: 0 16px; }
+      .header-nav { display: none; } 
+    }
+  </style>
+</head>
+<body>
+  <script>function goTo(p){window.location.href=p;}</script>
+  
+  <div class="header">
+    <div class="header-logo" onclick="window.location.href='/home'">
+      <span class="white">Gamo</span><span class="purple">Launchpad</span>
+    </div>
+    <nav class="header-nav">
+      <button class="nav-btn" onclick="window.location.href='/games.html'">Games</button>
+      <button class="nav-btn" onclick="window.location.href='/apps.html'">Apps</button>
+      <button class="nav-btn active">Settings</button>
+    </nav>
+  </div>
+
+  <input type="text" id="icon" class="hidden">
+  <input type="text" id="name" class="hidden">
+  <input type="text" id="background-input" class="hidden">
+  <button id="save-button" class="hidden"></button>
+  <button id="reset-button" class="hidden"></button>
+  <input type="checkbox" id="2" class="hidden">
+
+  <div class="toast" id="toast"></div>
+
+  <div class="settings-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Settings</h2>
+        <span class="version-badge">v6.0.0 alpha</span>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="s-btn active" onclick="showSection('general')"><i class="fa-solid fa-sliders"></i> General</button>
+        <button class="s-btn" onclick="showSection('cloaking')"><i class="fa-solid fa-mask"></i> Cloaking</button>
+        <button class="s-btn" onclick="showSection('panic')"><i class="fa-solid fa-triangle-exclamation"></i> Panic Key</button>
+        <button class="s-btn" onclick="showSection('about')"><i class="fa-solid fa-circle-info"></i> About</button>
+        <!-- Data Management moved to General or kept hidden/disabled -->
+      </nav>
+    </aside>
+
+    <main class="content">
+      <section class="section active" id="general">
+        <h2>General Settings</h2>
+        
+        <div class="card">
+          <div class="card-header"><i class="fa-solid fa-window-maximize"></i><h3>About:Blank Mode</h3></div>
+          <p>Open in an about:blank tab to hide from history.</p>
+          <div class="card-row" style="justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <label class="toggle"><input type="checkbox" id="ab-settings-switch" disabled title="Temporarily disabled"><span class="toggle-track" style="opacity:0.5;cursor:not-allowed;"></span></label>
+              <span style="font-size:0.8rem;color:var(--muted);text-decoration:line-through;">Auto-redirect on load</span> <span style="font-size:0.75rem;color:var(--accent);">Coming Soon</span>
+            </div>
+            <button class="btn btn-primary" disabled style="opacity:0.5;cursor:not-allowed;"><i class="fa-solid fa-lock"></i> Temporarily Disabled</button>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header"><i class="fa-solid fa-search"></i><h3>Search Engine</h3></div>
+          <p>Default search engine for the proxy.</p>
+          <div class="card-row">
+            <select id="engine" onchange="EngineChange(this)" style="flex:1;">
+              <option value="DuckDuckGo">DuckDuckGo</option>
+              <option value="Google">Google</option>
+              <option value="Bing">Bing</option>
+              <option value="Ecosia">Ecosia</option>
+              <option value="Startpage">Startpage</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="cloaking">
+        <h2>Tab Cloaking</h2>
+        <div class="card">
+          <div class="card-header"><i class="fa-solid fa-mask"></i><h3>Tab Cloaking</h3></div>
+          <p>Disguise the tab title and icon. Choose a preset and click Apply.</p>
+          <div class="card-row" style="margin-bottom:12px;">
+            <select id="dropdown" style="flex:1;">
+              <option value="Default">Default (Gamo)</option>
+              <option value="Google">Google</option>
+              <option value="Drive">Google Drive</option>
+              <option value="Classroom">Google Classroom</option>
+              <option value="Gmail">Gmail</option>
+              <option value="Google Meet">Google Meet</option>
+              <option value="Google Docs">Google Docs</option>
+              <option value="Google Slides">Google Slides</option>
+              <option value="Canvas">Canvas</option>
+              <option value="Schoology">Schoology</option>
+              <option value="Khan">Khan Academy</option>
+              <option value="Clever">Clever</option>
+              <option value="IXL">IXL</option>
+              <option value="Edpuzzle">Edpuzzle</option>
+              <option value="Desmos">Desmos</option>
+              <option value="Savvas Realize">Savvas Realize</option>
+              <option value="i-Ready Math">i-Ready Math</option>
+              <option value="i-Ready Reading">i-Ready Reading</option>
+              <option value="i-Ready Learning Games">i-Ready Learning Games</option>
+              <option value="Newsela Home">Newsela Home</option>
+              <option value="Newsela Binder">Newsela Binder</option>
+              <option value="Newsela Assignments">Newsela Assignments</option>
+              <option value="PowerSchool Sign In">PowerSchool Sign In</option>
+              <option value="PowerSchool Grades and Attendance">PowerSchool Grades</option>
+              <option value="Wikipedia">Wikipedia</option>
+              <option value="Dictionary">Dictionary.com</option>
+              <option value="Thesaurus">Thesaurus.com</option>
+              <option value="Britannica">Encyclopedia Britannica</option>
+              <option value="Campus">Infinite Campus</option>
+              <option value="Naviance">Naviance</option>
+              <option value="SmartPass">SmartPass</option>
+              <option value="Minga">Minga</option>
+              <option value="ClassLink Login">ClassLink Login</option>
+              <option value="NoRedInk Home">NoRedInk</option>
+              <option value="Ducksters">Ducksters</option>
+              <option value="LinkIt">LinkIt</option>
+              <option value="PBS Learning Media">PBS Learning Media</option>
+            </select>
+          </div>
+          <div class="card-row">
+            <button class="btn btn-primary" onclick="saveCloak()"><i class="fa-solid fa-check"></i> Apply</button>
+            <button class="btn btn-secondary" onclick="ResetCustomCloak()">Reset to Default</button>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header"><i class="fa-solid fa-search"></i><h3>Search Engine</h3></div>
+          <p>Default search engine for the proxy.</p>
+          <div class="card-row">
+            <select id="engine" onchange="EngineChange(this)" style="flex:1;">
+              <option value="DuckDuckGo">DuckDuckGo</option>
+              <option value="Google">Google</option>
+              <option value="Bing">Bing</option>
+              <option value="Ecosia">Ecosia</option>
+              <option value="Startpage">Startpage</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="panic">
+        <h2>Privacy & Security</h2>
+        <div class="card">
+          <div class="card-header"><i class="fa-solid fa-bolt"></i><h3>Panic Key</h3></div>
+          <p>Press a key to instantly redirect. Separate multiple keys with commas.</p>
+          <div class="card-row" style="margin-bottom:12px;">
+            <input type="text" id="eventKeyInput" placeholder="Keys (e.g. `,~)" style="width:100px;">
+            <input type="text" id="linkInput" placeholder="Redirect URL" style="flex:1;">
+          </div>
+          <button class="btn btn-primary" onclick="savePanicKeyCustom()"><i class="fa-solid fa-save"></i> Save</button>
+        </div>
+      </section>
+
+      <section class="section" id="data">
+        <h2>Data Management</h2>
+        <div class="card">
+          <div class="card-header"><i class="fa-solid fa-database"></i><h3>Backup & Restore</h3></div>
+          <p>Export or import all your settings. <span style="font-size:0.75rem;color:var(--accent);">Coming Soon</span></p>
+          <div class="card-row">
+            <button class="btn btn-primary" disabled style="opacity:0.5;cursor:not-allowed;"><i class="fa-solid fa-download"></i> Export</button>
+            <button class="btn btn-secondary" disabled style="opacity:0.5;cursor:not-allowed;"><i class="fa-solid fa-upload"></i> Import</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="about">
+        <h2>About & Updates</h2>
+        <div class="info-grid">
+          <div class="info-item"><span>Version</span><strong>v6.0.0 alpha</strong></div>
+          <div class="info-item"><span>Updated</span><strong>Jan 2026</strong></div>
+          <div class="info-item"><span>Based On</span><strong>Interstellar</strong></div>
+        </div>
+        <div class="changelog">
+          <h3>What's New in v6.0.0 alpha</h3>
+          <ul>
+            <li><span class="tag new">NEW</span> Redesigned Settings with sidebar</li>
+            <li><span class="tag new">NEW</span> Tab browser with multiple tabs</li>
+            <li><span class="tag new">NEW</span> Music Player integration</li>
+            <li><span class="tag sec">SEC</span> 40+ Tab cloaking presets</li>
+            <li><span class="tag fix">FIX</span> All original cloak icons restored</li>
+          </ul>
+        </div>
+        <div class="card-row">
+          <button class="btn btn-primary" onclick="showCredits()"><i class="fa-solid fa-heart"></i> Credits</button>
+          <button class="btn btn-secondary" onclick="window.open('https://discord.gg/interstellar','_blank')"><i class="fa-brands fa-discord"></i> Discord</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="credits-modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="hideCredits()"><i class="fa-solid fa-xmark"></i></button>
+      <h2 class="credits-title">Credits</h2>
+      <div class="credit-item"><div class="credit-role">Lead Developer</div><div class="credit-name">Avan Kottapalli</div></div>
+      <div class="credit-item"><div class="credit-role">UI/UX Design</div><div class="credit-name">Avan Kottapalli</div></div>
+      <div class="credit-item"><div class="credit-role">Music Player</div><div class="credit-name">Avan Kottapalli</div></div>
+      <div class="credit-note">Special thanks to the <strong>Interstellar Team</strong> for the proxy foundation. ❤️</div>
+    </div>
+  </div>
+
+  <script>
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast ' + type + ' show';
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+    
+    // Explicitly define showSection
+    function showSection(id) {
+      // Deactivate all sections and buttons
+      document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.s-btn').forEach(el => el.classList.remove('active'));
+      
+      // Activate target section
+      const target = document.getElementById(id);
+      if (target) target.classList.add('active');
+      
+      // Activate matching button
+      // We find the button that called this by checking its onclick attribute or just relying on event targeting if passed
+      // Simpler approach: find button with onclick containing the id
+      const btns = document.querySelectorAll('.s-btn');
+      btns.forEach(btn => {
+        if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(id)) {
+           btn.classList.add('active');
+        }
+      });
+    }
+    
+    function showCredits() { document.getElementById('credits-modal').classList.add('open'); }
+    function hideCredits() { document.getElementById('credits-modal').classList.remove('open'); }
+    document.getElementById('credits-modal').addEventListener('click', e => {
+      if (e.target.id === 'credits-modal') hideCredits();
+    });
+    
+    // About:Blank - opens REAL about:blank popup
+    function openAboutBlank() {
+      const name = localStorage.getItem("name") || "My Drive - Google Drive";
+      const icon = localStorage.getItem("icon") || "https://ssl.gstatic.com/docs/doclist/images/drive_2022q3_32dp.png";
+      
+      // Open actual about:blank
+      const popup = window.open("about:blank", "_blank");
+      if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+        showToast("Popup blocked! Allow popups for this site.", "error");
+        return;
+      }
+      
+      // Write HTML with dark background first (prevents flash)
+      popup.document.open();
+      popup.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <title>${name}</title>
+  <link rel="icon" href="${icon}">
+  <style>
+    * { margin: 0; padding: 0; }
+    body { 
+      background: #0a0a0a; 
+      height: 100vh; 
+      overflow: hidden;
+    }
+    iframe {
+      border: none;
+      width: 100vw;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+  <iframe src="${window.location.origin}"></iframe>
+</body>
+</html>`);
+      popup.document.close();
+      
+      showToast("Opened in about:blank tab!");
+    }
+    
+    document.getElementById('ab-settings-switch').addEventListener('change', function(e) {
+      localStorage.setItem('ab', e.target.checked ? 'true' : 'false');
+      showToast(e.target.checked ? 'Auto-redirect enabled' : 'Auto-redirect disabled');
+    });
+    
+    function savePanicKeyCustom() {
+      const keyInput = document.getElementById('eventKeyInput');
+      const urlInput = document.getElementById('linkInput');
+      const keys = keyInput.value.trim();
+      let url = urlInput.value.trim();
+      
+      if (!keys) { showToast('Please enter a panic key', 'error'); return; }
+      if (url && !url.startsWith('http')) { url = 'https://' + url; urlInput.value = url; }
+      
+      const keyArray = keys.split(',').map(k => k.trim());
+      localStorage.setItem('eventKey', JSON.stringify(keyArray));
+      localStorage.setItem('eventKeyRaw', keys);
+      if (url) localStorage.setItem('pLink', url);
+      
+      showToast('Panic key saved! Press "' + keys + '" to redirect.');
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedKeyRaw = localStorage.getItem('eventKeyRaw');
+      if (savedKeyRaw) document.getElementById('eventKeyInput').value = savedKeyRaw;
+      const savedUrl = localStorage.getItem('pLink');
+      if (savedUrl) document.getElementById('linkInput').value = savedUrl;
+      if (localStorage.getItem('ab') === 'true') document.getElementById('ab-settings-switch').checked = true;
+      
+      // Default search engine is DuckDuckGo
+      const savedEngine = localStorage.getItem('enginename') || 'DuckDuckGo';
+      document.getElementById('engine').value = savedEngine;
+      
+      // Set default engine if not set
+      if (!localStorage.getItem('engine')) {
+        localStorage.setItem('engine', 'https://duckduckgo.com/?q=');
+        localStorage.setItem('enginename', 'DuckDuckGo');
+      }
+    });
+  </script>
+  
+  <script src="/assets/js/nav.js"></script>
+  <script>
+    // Only load music player if NOT in shell (standalone mode)
+    if (window.parent === window || !window.parent.gamoMusicPlayer) {
+      const script = document.createElement('script');
+      script.src = '/assets/js/music-player.js';
+      document.body.appendChild(script);
+    }
+  </script>
+  <script src="/assets/js/s1.js?v=FIX2"></script>
+  <script src="/assets/js/m1.js?v=FIX2"></script>
+</body>
+</html>

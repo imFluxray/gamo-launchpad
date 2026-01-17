@@ -1,0 +1,29 @@
+:root {
+  /* Primary Colors */
+  --primary-color: #8B5CF6;
+  --primary-dark: #6D28D9;
+  --primary-light: #A78BFA;
+  
+  /* Secondary Colors */
+  --secondary-color: #3B82F6;
+  --secondary-dark: #1E40AF;
+  --secondary-light: #60A5FA;
+  
+  /* Background Colors */
+  --bg-color: #000000;
+  --bg-dark: #0A0A0A;
+  --bg-card: #1A1A1A;
+  
+  /* Text Colors */
+  --text-color: #FFFFFF;
+  --text-muted: #D1D5DB;
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  --gradient-hover: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark));
+  
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: 10px;
+}

@@ -1,0 +1,201 @@
+.material-symbols-outlined {
+   font-variation-settings:
+      "FILL" 0,
+      "wght" 400,
+      "GRAD" 0,
+      "opsz" 48;
+}
+
+.f-nav #icon-container {
+   display: flex;
+   align-items: center;
+}
+
+img {
+   width: 100%;
+   height: 100%;
+   padding-top: 5px;
+}
+
+.f-nav-container {
+   min-width: 5vw;
+   min-height: 10vh;
+   display: inline;
+}
+
+.f-nav {
+   top: 20px;
+   left: 50%;
+   transform: translateX(-50%);
+   letter-spacing: 2px;
+   font-size: 22px;
+   min-height: 80px;
+   padding: 0 25px;
+   box-sizing: border-box;
+   background-color: var(--glass-bg);
+   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+   -webkit-backdrop-filter: blur(16px);
+   backdrop-filter: blur(16px);
+   border: 1px solid var(--glass-border);
+   transition: 0.35s ease;
+   border-radius: 20px; /* Floating Pill */
+   width: 95%;
+   max-width: 1400px;
+   margin: 0;
+   z-index: 1000;
+   position: fixed;
+}
+
+.f-nav .icon:hover {
+   transform: translateY(-15%) scale(1.03);
+   font-weight: 800;
+}
+
+.f-nav .icon {
+   position: absolute;
+   float: left;
+   text-transform: uppercase;
+   font-size: 30px;
+   font-family: "Inter", sans-serif;
+   cursor: pointer;
+   color: var(--text-primary);
+   font-weight: 600;
+   margin-left: 5px;
+   font-style: normal;
+   text-decoration: none;
+   transition: all 0.2s ease;
+   height: 5vh;
+   top: 18%;
+}
+
+.f-nav-right {
+   position: absolute;
+   top: 50%;
+   transform: translateY(-50%);
+   text-transform: uppercase;
+   font-size: 18px;
+   color: var(--text-primary);
+   font-weight: 600;
+   right: 2%;
+}
+
+.f-nav-right .navbar-link {
+   margin-left: 10px;
+   text-transform: uppercase;
+   cursor: pointer;
+   color: var(--text-primary);
+   font-weight: 800;
+   right: 2%;
+   font-family: "Inter", sans-serif;
+   font-style: normal;
+   text-decoration: none;
+   transition: all 0.2s ease;
+   transform: translateX(0%);
+}
+
+@media (orientation: portrait) {
+   .f-nav-right .navbar-link {
+      margin-left: 10px;
+      text-transform: uppercase;
+      font-size: 2.5vw;
+      cursor: pointer;
+      color: var(--text-primary);
+      font-weight: 800;
+      right: 2%;
+      font-family: "Inter", sans-serif;
+      font-style: normal;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      transform: translateX(0%);
+   }
+   .f-nav-right .navbar-link:hover {
+      text-transform: uppercase;
+      cursor: pointer;
+      font-weight: 800;
+      font-family: "Inter", sans-serif;
+      font-style: normal;
+      font-size: 3vw;
+      transform: translateX(-20%);
+   }
+}
+
+.f-nav-right .navbar-link:hover {
+   text-transform: uppercase;
+   cursor: pointer;
+   font-weight: 800;
+   font-family: "Inter", sans-serif;
+   font-style: normal;
+   font-size: 3vh;
+   transform: translateX(-20%);
+}
+
+.navbar-icon {
+   margin-right: 5px;
+   transition: all 0.2s ease;
+}
+
+.navbar-link {
+   margin-right: 5px;
+}
+
+.navbar-link:hover > .settings-icon {
+   animation: spin 0.5s;
+   animation-timing-function: cubic-bezier(0, 1.04, 0.91, 0.99);
+}
+
+.hamburger {
+   display: none;
+   background: none;
+   border: none;
+   color: var(--text-color);
+   font-size: 1.5rem;
+   cursor: pointer;
+}
+
+@media (max-width: 768px) {
+   .f-nav-right {
+      display: none; /* Hide default nav items on mobile for now - hamburger to be added in Phase 6/Polish if needed, or simple stack */
+   }
+   
+   /* Simplified mobile nav for now */
+   .f-nav-right {
+      position: fixed;
+      top: 80px;
+      right: 0;
+      background: var(--bg-card);
+      width: 100%;
+      flex-direction: column;
+      display: flex;
+      padding: 1rem;
+      align-items: center;
+      gap: 1rem;
+      transform: translateY(-150%);
+      transition: transform 0.3s ease-in-out;
+   }
+   
+   .f-nav-right.active {
+      transform: translateY(0);
+   }
+
+   .f-nav-right .navbar-link {
+       position: static;
+       transform: none;
+       margin: 0;
+       font-size: 1.2rem;
+   }
+}
+
+@keyframes spin {
+   from {
+      transform: rotate(0deg);
+   }
+   to {
+      transform: rotate(360deg);
+   }
+}
+
+@media (orientation: portrait) {
+   img {
+      height: 40px;
+   }
+}

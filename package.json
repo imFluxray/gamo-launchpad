@@ -1,0 +1,38 @@
+{
+  "name": "gamo-launchpad",
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "npm": ">=7.0.0",
+    "node": ">=16.0.0"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "format": "pnpm biome format --write .",
+    "precommit": "pnpm run format && pnpm biome check --write .",
+    "lint": "biome lint --write ."
+  },
+  "author": "Gamo Launchpad",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "@distube/ytdl-core": "^4.16.12",
+    "@nebula-services/bare-server-node": "^2.0.4",
+    "aos": "^2.3.4",
+    "chalk": "^5.4.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^4.21.2",
+    "express-basic-auth": "^1.2.1",
+    "mime": "^4.1.0",
+    "node-fetch": "^3.3.2",
+    "play-dl": "^1.9.7",
+    "three": "^0.182.0",
+    "yt-dlp-wrap": "^2.3.12",
+    "yt-search": "^2.13.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.2"
+  },
+  "packageManager": "pnpm@9.10.0"
+}

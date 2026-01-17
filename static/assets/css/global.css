@@ -1,0 +1,145 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap");
+
+:root {
+    /* Elegant Black & White Theme */
+    --primary: #ffffff;
+    --primary-color: #ffffff;
+    --primary-dark: #e0e0e0;
+    --primary-light: #ffffff;
+    --primary-glow: rgba(255, 255, 255, 0.3);
+    
+    --secondary: #cccccc;
+    --secondary-color: #cccccc;
+    --secondary-dark: #999999;
+    --secondary-light: #eeeeee;
+    --secondary-glow: rgba(255, 255, 255, 0.2);
+    
+    --accent: #ffffff;
+    
+    /* Backgrounds - Pure Black */
+    --bg-deep: #000000;
+    --bg-color: #000000;
+    --bg-dark: #0a0a0a;
+    --bg-card: rgba(15, 15, 15, 0.7);
+    
+    /* Glassmorphism - Monochrome */
+    --glass-bg: rgba(20, 20, 20, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-highlight: rgba(255, 255, 255, 0.15);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    --glass-blur: 10px;
+    
+    /* Gradients - Subtle White */
+    --gradient-primary: linear-gradient(135deg, #ffffff, #cccccc);
+    --gradient-hover: linear-gradient(135deg, #e0e0e0, #aaaaaa);
+    
+    /* Geometry */
+    --radius-lg: 24px;
+    --radius-md: 16px;
+    --radius-sm: 8px;
+    
+    /* Text */
+    --text-main: #ffffff;
+    --text-color: #ffffff;
+    --text-primary: #ffffff;
+    --text-muted: #888888;
+    
+    /* Elegant Fonts */
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'Inter', sans-serif;
+    --font-elegant: 'Cormorant Garamond', serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-deep) !important;
+    background-image: none !important;
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    background: var(--bg-deep);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Global Glass Panel Class with Real Filter */
+.glass-panel {
+    background: rgba(20, 20, 35, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05); /* Slight border */
+    box-shadow: 
+        0 4px 6px rgba(0, 0, 0, 0.1),
+        0 10px 30px rgba(0, 0, 0, 0.2),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05); /* Inner light */
+    border-radius: var(--radius-lg);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate; /* Create stacking context for filter */
+}
+
+/* Apply the SVG filter to a pseudo-element or inner container if possible, 
+   but direct application works too if we are careful about text readability.
+   The user wants "Real" glass, which usually distorts background. 
+   We will apply a subtle distortion. */
+
+.glass-panel::before {
+    content: ""; /* No noise image, using real filter if supported */
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    /* This connects to the SVG filter we added globally */
+    /* filter: url(#glass-distortion); Note: This can be heavy on performance/text readability. 
+       Usually applied to a 'backdrop' layer. For now, we stick to high-quality CSS blur + noise 
+       unless we restructure HTML to have separate bg layers for every card. 
+       Let's use a cleaner look requested by user first. */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+    pointer-events: none;
+}
+
+/* Fix Settings Page White Background */
+html, body {
+    background-color: var(--bg-deep) !important; /* Force dark bg */
+    background-image: none !important; /* Remove old bg image */
+}
+
+/* Settings Specific Fixes */
+.settings-container {
+    padding-top: 100px; /* Clear header */
+}
+
+/* Footer Fix */
+footer {
+    position: relative; /* Not fixed */
+    margin-top: auto;   /* Push to bottom if flex container */
+    width: 100%;
+    z-index: 10;
+}
+
+.main {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Align top */
+    padding-top: 120px; /* Space for floating header */
+}

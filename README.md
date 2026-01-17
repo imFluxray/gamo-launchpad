@@ -94,7 +94,7 @@ If you encounter problems, open an issue on GitHub, and we'll address it promptl
 
 ## Credits
 
-A huge thanks goes out to all of the people who have contributed to this project.
+A huge thanks goes out to all of the people who have contributed to this project, as well as the interstellar theme for the base of the proxy.
 
 ---
 

@@ -1,7 +1,7 @@
 # Gamo Launchpad
 
 <div align="center">
-  <h3>The Ultimate Web Proxy & Launchpad</h3>
+  <h3>The Ultimate Web/Desktop Proxy & Launchpad</h3>
   <p>A modern web proxy with a sleek UI and privacy features.</p>
 </div>
 

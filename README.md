@@ -13,13 +13,9 @@
 - **Tab Cloaking** - Disguise your browsing activity
 - **Wide Collection** - Extensive apps & games library
 - **Clean UI** - Easy to use interface
-- **Inspect Element** - Built-in developer tools
 - **Various Themes** - Customize your experience
-- **Password Protection** - Optional security layer
 - **Built-in Tab System** - Seamless multitasking
-- **Now.gg Support** - Cloud gaming integration
 - **Fast Speeds** - Optimized performance
-- **Geforce NOW Support** - Enhanced gaming capabilities
 
 ---
 
@@ -42,7 +38,7 @@
 3. **Install & Start**
    - In the terminal at the bottom, paste:
    ```bash
-   pnpm i && pnpm start
+   node start
    ```
 
 4. **Make Public**

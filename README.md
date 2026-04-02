@@ -50,27 +50,6 @@
    - Access the deployed website from the ports tab
    - For subsequent uses in the same codespace, just run `pnpm start`
 
-#### Troubleshooting
-
-<div style="background: #f6f8fa; padding: 15px; border-radius: 6px; margin: 15px 0;">
-
-**If there is no popup:**
-
-1. Run `pnpm i`, and before `pnpm start`, prepend `PORT=8080`, replacing 8080 with another port
-   ```bash
-   PORT=6969 pnpm start
-   ```
-
-2. If this does not work, prepend `$env:PORT=8080;`:
-   ```bash
-   $env:PORT=6969; pnpm start
-   ```
-
-3. Navigate to the ports tab
-4. Click "Forward A Port" and type the port number
-5. Right-click "Visibility" and set Port Visibility to Public
-
-</div>
 
 ---
 

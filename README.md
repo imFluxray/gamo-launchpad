@@ -1,6 +1,6 @@
 <div align = "center">
     <h1>Gamo Launchpad</h1>
-
+</div>
 <div align="center">
   <h3>The Ultimate Web/Desktop Proxy & Launchpad</h3>
   <p>A modern web proxy with a sleek UI and privacy features.</p>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Required - Gamo Launchpad</title>
+    <style>
+        body {
+            background-color: #0f0f13;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #1a1b26;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            margin-top: 0;
+            color: #7aa2f7;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #414868;
+            background: #24283b;
+            color: white;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+            font-size: 1.1rem;
+            text-align: center;
+            font-family: monospace;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: #7aa2f7;
+            color: #1a1b26;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #bb9af7;
+        }
+        .message {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            min-height: 1.2rem;
+        }
+        .error { color: #f7768e; }
+        .success { color: #9ece6a; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Private Access</h1>
+        <p>This system is restricted. Please generate a code using our Discord bot.</p>
+        <form id="accessForm">
+            <input type="text" id="code" placeholder="XXXX-XXXX-XXXX-XXXX" required autocomplete="off" maxlength="19">
+            <button type="submit">Verify Code</button>
+        </form>
+        <div id="message" class="message"></div>
+    </div>
+
+    <script src="backend.js"></script>
+    <script>
+        const BACKEND_URL = (typeof self !== 'undefined' && self.GAMO_BACKEND) ? self.GAMO_BACKEND : '';
+        
+        // Check if access codes are disabled
+        fetch(`${BACKEND_URL}/api/settings`)
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.access_codes_enabled === false) {
+                    document.getElementById('message').textContent = 'Access Codes are Disabled. Redirecting...';
+                    document.getElementById('message').className = 'message success';
+                    setTimeout(() => {
+                        window.location.href = '/home';
+                    }, 500);
+                }
+            })
+            .catch(err => console.error('Error fetching settings:', err));
+
+        const form = document.getElementById('accessForm');
+        const codeInput = document.getElementById('code');
+        const messageDiv = document.getElementById('message');
+
+        console.log('Access page loaded');
+
+        // Auto-format input with dashes
+        codeInput.addEventListener('input', (e) => {
+            let val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+            
+            // Limit to 16 chars
+            if (val.length > 16) val = val.substring(0, 16);
+
+            // Add dashes
+            const parts = [];
+            for (let i = 0; i < val.length; i += 4) {
+                parts.push(val.substring(i, Math.min(i + 4, val.length)));
+            }
+            
+            e.target.value = parts.join('-');
+        });
+
+        // Handle Paste to strip internal formatting if needed
+        codeInput.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text');
+            const clean = text.replace(/[^a-zA-Z0-9]/g, '').substring(0, 16).toUpperCase();
+            
+            const parts = [];
+            for (let i = 0; i < clean.length; i += 4) {
+                parts.push(clean.substring(i, Math.min(i + 4, clean.length)));
+            }
+            codeInput.value = parts.join('-');
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log('Form submitted');
+            const code = codeInput.value.trim();
+            console.log('Code:', code);
+            
+            messageDiv.textContent = 'Verifying...';
+            messageDiv.className = 'message';
+
+            try {
+                console.log('Fetching /api/verify-code...');
+                const response = await fetch('/api/verify-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code })
+                });
+                console.log('Response status:', response.status);
+
+                const data = await response.json();
+                console.log('Data:', data);
+
+                if (response.ok) {
+                    messageDiv.textContent = 'Access Granted! Redirecting...';
+                    messageDiv.className = 'message success';
+                    setTimeout(() => {
+                        window.location.href = '/home';
+                    }, 1500);
+                } else {
+                    messageDiv.textContent = data.error || ('Invalid code (' + response.status + ' ' + JSON.stringify(data) + ')');
+                    messageDiv.className = 'message error';
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                messageDiv.textContent = 'Connection error: ' + error.message;
+                messageDiv.className = 'message error';
+            }
+        });
+    </script>
+</body>
+</html>
